@@ -1,0 +1,48 @@
+<!-- trends.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Trends</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; }
+    </style>
+</head>
+<body>
+    <h1>Weather Trends</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    
+        // Function to fetch weather data and display popup
+        function fetchAndDisplayWeather(cityName, lat, lon) {
+            fetch_weather_data(cityName).then(data => {
+                L.popup()
+                    .setLatLng([lat, lon])
+                    .setContent(`<b>${cityName}</b><br>Temperature: ${data.main.temp}°C<br>Humidity: ${data.main.humidity}%`)
+                    .openOn(map);
+            });
+        }
+    
+        // Fetch cities and add markers to the map
+        fetch('/cities')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(city => {
+                    var marker = L.marker([city.latitude, city.longitude])
+                        .addTo(map)
+                        .on('click', function () {
+                            fetchAndDisplayWeather(city.name, city.latitude, city.longitude);
+                        });
+                });
+            });
+    </script>
+    
+</body>
+</html>

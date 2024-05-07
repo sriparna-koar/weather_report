@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature and Humidity Trends</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">WeatherTracker</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/login">Login</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/trends">Graph</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/map">Map</a>
+
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <h1>Temperature and Humidity Trends</h1>
+    
+    <div>
+        <h2>Temperature Trend</h2>
+        <img id="temperature-graph" src="" alt="Temperature Trend">
+    </div>
+    
+    <div>
+        <h2>Humidity Trend</h2>
+        <img id="humidity-graph" src="" alt="Humidity Trend">
+    </div>
+
+    <script>
+        // Fetch temperature trend graph
+        fetch('/temperature_trend')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('temperature-graph').src = 'data:image/png;base64,' + data.temperature_trend;
+            })
+            .catch(error => console.error('Error fetching temperature trend:', error));
+
+        // Fetch humidity trend graph
+        fetch('/humidity_trend')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('humidity-graph').src = 'data:image/png;base64,' + data.humidity_trend;
+            })
+            .catch(error => console.error('Error fetching humidity trend:', error));
+    </script>
+</body>
+</html>

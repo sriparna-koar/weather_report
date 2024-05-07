@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTracker - City Weather Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .hot {
+            color: red;
+        }
+        .normal {
+            color: black;
+        }
+        .pleasant {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WeatherTracker - City Weather Data</h1>
+        <ul id="city-list"></ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Function to get weather condition class based on temperature
+            function getWeatherConditionClass(condition) {
+                switch(condition) {
+                    case "hot":
+                        return "hot";
+                    case "normal":
+                        return "normal";
+                    case "pleasant":
+                        return "pleasant";
+                    default:
+                        return "";
+                }
+            }
+
+            // Fetch city weather data using AJAX
+            $.get("/", function(data) {
+                $('#city-list').empty();
+                data.city_weather_data.forEach(function(city) {
+                    var weatherConditionClass = getWeatherConditionClass(city.weather_condition);
+                    $('#city-list').append(`<li>${city.city_name}: Temperature ${city.temperature}°C, Humidity ${city.humidity}% <span class="${weatherConditionClass}" id="city-${city.city_id}"></span></li>`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

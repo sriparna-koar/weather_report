@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTracker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .hot {
+            color: red;
+        }
+        .normal {
+            color: black;
+        }
+        .pleasant {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">WeatherTracker</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/login">Login</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/trends">Graph</a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/map">Map</a>
+
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="content">
+            <h1>WeatherTracker</h1>
+            <ul id="city-list"></ul>
+            <form id="add-city-form">
+                <input type="text" id="city-input" placeholder="Enter city name">
+                <button type="submit">Add City</button>
+            </form>
+            <div id="city-details"></div>
+        </div>
+        
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Function to determine weather condition class based on temperature
+            function getWeatherConditionClass(temperature) {
+                if (temperature > 40) {
+                    return "hot";
+                } else if (temperature > 28) {
+                    return "normal";
+                } else {
+                    return "pleasant";
+                }
+            }
+        
+            // Function to get thermometer icon based on temperature
+            function getThermometerIcon(temperature) {
+                if (temperature > 40) {
+                    return "🔴"; // Red thermometer icon
+                } else if (temperature > 28) {
+                    return "⚫️"; // Black thermometer icon
+                } else {
+                    return "🟢"; // Green thermometer icon
+                }
+            }
+        
+            // Fetch city data and display in the list
+            function fetchCityData() {
+                $.get("/", function(data) {
+                    $('#city-list').empty();
+                    data.city_weather_data.forEach(function(city) {
+                        var weatherConditionClass = getWeatherConditionClass(city.temperature);
+                        var thermometerIcon = getThermometerIcon(city.temperature);
+                        $('#city-list').append(`<li>${thermometerIcon} ${city.city_name}: Temperature ${city.temperature}°C, Humidity ${city.humidity}% <span class="${weatherConditionClass}" id="city-${city.city_id}"></span> <button class="delete" data-id="${city.city_id}">Delete</button></li>`);
+                    });
+                    // After fetching city data, show the weather report
+                    showWeatherReport();
+                });
+            }
+        
+            // Show current weather report for each city
+            function showWeatherReport() {
+                $.get("/", function(data) {
+                    $('#city-details').empty();
+                    data.city_weather_data.forEach(function(city) {
+                        var weatherReport = `${city.city_name}: Temperature ${city.temperature}°C, Humidity ${city.humidity}%`;
+                        $('#city-details').append(`<div>${weatherReport}</div>`);
+                    });
+                });
+            }
+        
+            // Show trend data for a specific city
+            function showTrendData(city_id) {
+                $.get("/trend?city_id=" + city_id, function(data) {
+                    $('#city-trend').empty();
+                    data.forEach(function(entry) {
+                        var trendReport = `Temperature: ${entry[0]}°C, Humidity: ${entry[1]}%, Time: ${entry[2]}`;
+                        $('#city-trend').append(`<div>${trendReport}</div>`);
+                    });
+                });
+            }
+        
+            // Form submission to add a city
+            $('#add-city-form').submit(function(event) {
+                event.preventDefault();
+                var city = $('#city-input').val();
+                $.post("/add_city", {city: city}, function(response) {
+                    alert(response.message);
+                    fetchCityData();
+                });
+            });
+        
+            // Delete city button click handler
+            $(document).on('click', '.delete', function() {
+                var cityId = $(this).data('id');
+                $.ajax({
+                    url: '/delete_city/' + cityId,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert(response.message);
+                        fetchCityData();
+                    }
+                });
+            });
+        
+            // Show trend data when a city is clicked
+            $(document).on('click', 'li', function() {
+                var cityId = $(this).find('.delete').data('id');
+                showTrendData(cityId);
+            });
+        
+            // Refresh weather data on page load
+            fetchCityData();
+            setInterval(fetchCityData, 6000); // Refresh every 10 minutes (600,000 milliseconds)
+        });
+        
+</script>    
+</body>
+</html>
