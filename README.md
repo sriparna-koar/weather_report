@@ -6,7 +6,8 @@ Home Page by addding the cities name we can view the weather report and as per t
 
 ![image](https://github.com/sriparna-koar/weather_report/assets/144530081/2aac9cc8-9848-49a6-9097-0f3e9504e3b7)
 
-![Uploading image.png…]()
 
 
+
+![image](https://github.com/sriparna-koar/weather_report/assets/144530081/5fe7bed9-0f57-4fe3-b2de-114a117de26a)
 
